@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Usuario {
+  idUsuario   Int      @id @default(autoincrement())
+  nome        String
+  email       String   @unique
+  senha       String
+  telefone    String
+  tipoUsuario String
+  cliente     Cliente?
+  produtor    Produtor?
+}
+
+model Cliente {
+  idCliente   Int        @id @default(autoincrement())
+  cpf         String     @unique
+  endereco    String
+  usuarioId   Int        @unique
+  usuario     Usuario    @relation(fields: [usuarioId], references: [idUsuario])
+  pedidos     Pedido[]
+  carrinho    Carrinho?
+}
+
+model Produtor {
+  idProdutor      Int       @id @default(autoincrement())
+  nomePropriedade String
+  cnpjCpf         String    @unique
+  localizacao     String
+  descricao       String
+  usuarioId       Int       @unique
+  usuario         Usuario   @relation(fields: [usuarioId], references: [idUsuario])
+  produtos        Produto[]
+}
+
+model Produto {
+  idProduto   Int            @id @default(autoincrement())
+  nome        String
+  descricao   String
+  preco       Float
+  estoque     Int
+  categoria   String
+  produtorId  Int
+  produtor    Produtor       @relation(fields: [produtorId], references: [idProdutor])
+  itensCarrinho ItemCarrinho[]
+  itensPedido ItemPedido[]
+}
+
+model Carrinho {
+  idCarrinho   Int            @id @default(autoincrement())
+  dataCriacao  DateTime
+  valorTotal   Float
+  clienteId    Int            @unique
+  cliente      Cliente        @relation(fields: [clienteId], references: [idCliente])
+  itens        ItemCarrinho[]
+}
+
+model ItemCarrinho {
+  idItemCarrinho Int      @id @default(autoincrement())
+  quantidade     Int
+  subtotal       Float
+  carrinhoId     Int
+  produtoId      Int
+  carrinho       Carrinho @relation(fields: [carrinhoId], references: [idCarrinho])
+  produto        Produto  @relation(fields: [produtoId], references: [idProduto])
+}
+
+model Pedido {
+  idPedido    Int          @id @default(autoincrement())
+  dataPedido  DateTime
+  status      String
+  valorTotal  Float
+  clienteId   Int
+  pagamentoId Int          @unique
+  entregaId   Int          @unique
+  cliente     Cliente      @relation(fields: [clienteId], references: [idCliente])
+  pagamento   Pagamento    @relation(fields: [pagamentoId], references: [idPagamento])
+  entrega     Entrega      @relation(fields: [entregaId], references: [idEntrega])
+  itens       ItemPedido[]
+}
+
+model ItemPedido {
+  idItemPedido  Int     @id @default(autoincrement())
+  quantidade    Int
+  precoUnitario Float
+  subtotal      Float
+  pedidoId      Int
+  produtoId     Int
+  pedido        Pedido  @relation(fields: [pedidoId], references: [idPedido])
+  produto       Produto @relation(fields: [produtoId], references: [idProduto])
+}
+
+model Pagamento {
+  idPagamento     Int      @id @default(autoincrement())
+  tipoPagamento   String
+  statusPagamento String
+  valor           Float
+  dataPagamento   DateTime
+  pedido          Pedido?
+}
+
+model Entrega {
+  idEntrega        Int      @id @default(autoincrement())
+  enderecoEntrega  String
+  statusEntrega    String
+  previsaoEntrega  DateTime
+  taxaEntrega      Float
+  pedido           Pedido?
+}
