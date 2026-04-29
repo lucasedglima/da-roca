@@ -1,12 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { Pagamento } from "../../generated/prisma/client.js";
-import { PagamentoRepository } from "../repositories/PagamentoRepository.js";
+import type { Cliente } from "../../generated/prisma/client.js";
+import { ClienteRepository } from "../repositories/ClienteRepository.js";
 
-export class PagamentoController {
-  private pagamentoRepository = new PagamentoRepository();
+export class ClienteController {
+  private clienteRepository = new ClienteRepository();
 
   async get(request: FastifyRequest, reply: FastifyReply) {
-    const json = await this.pagamentoRepository.findAll();
+    const json = await this.clienteRepository.findAll();
     reply.status(200).send(json);
   }
 
@@ -20,28 +20,27 @@ export class PagamentoController {
       return reply.status(400).send({ message: "Id invalido" });
     }
 
-    const json = await this.pagamentoRepository.findById(id);
+    const json = await this.clienteRepository.findById(id);
 
     if (!json) {
-      return reply.status(404).send({ message: "Pagamento nao encontrado" });
+      return reply.status(404).send({ message: "Cliente nao encontrado" });
     }
 
     reply.status(200).send(json);
   }
 
   async post(
-    request: FastifyRequest<{ Body: Omit<Pagamento, "idPagamento"> }>,
+    request: FastifyRequest<{ Body: Omit<Cliente, "idCliente"> }>,
     reply: FastifyReply,
   ) {
-    const pagamento = request.body;
-    const json = await this.pagamentoRepository.create(pagamento);
+    const json = await this.clienteRepository.create(request.body);
     reply.status(201).send(json);
   }
 
   async putParamId(
     request: FastifyRequest<{
       Params: { id: string };
-      Body: Partial<Omit<Pagamento, "idPagamento">>;
+      Body: Partial<Omit<Cliente, "idCliente">>;
     }>,
     reply: FastifyReply,
   ) {
@@ -51,13 +50,13 @@ export class PagamentoController {
       return reply.status(400).send({ message: "Id invalido" });
     }
 
-    const existe = await this.pagamentoRepository.findById(id);
+    const existe = await this.clienteRepository.findById(id);
 
     if (!existe) {
-      return reply.status(404).send({ message: "Pagamento nao encontrado" });
+      return reply.status(404).send({ message: "Cliente nao encontrado" });
     }
 
-    const json = await this.pagamentoRepository.update(id, request.body);
+    const json = await this.clienteRepository.update(id, request.body);
     reply.status(200).send(json);
   }
 
@@ -71,15 +70,15 @@ export class PagamentoController {
       return reply.status(400).send({ message: "Id invalido" });
     }
 
-    const existe = await this.pagamentoRepository.findById(id);
+    const existe = await this.clienteRepository.findById(id);
 
     if (!existe) {
-      return reply.status(404).send({ message: "Pagamento nao encontrado" });
+      return reply.status(404).send({ message: "Cliente nao encontrado" });
     }
 
-    await this.pagamentoRepository.delete(id);
+    await this.clienteRepository.delete(id);
     reply.status(200).send(true);
   }
 }
 
-export const pagamentoController = new PagamentoController();
+export const clienteController = new ClienteController();

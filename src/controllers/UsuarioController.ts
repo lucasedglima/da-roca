@@ -1,4 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import argon2 from "argon2";
 import type { Usuario } from "../../generated/prisma/client.js";
 import { UsuarioRepository } from "../repositories/UsuarioRepository.js";
 
@@ -33,7 +34,10 @@ export class UsuarioController {
     request: FastifyRequest<{ Body: Omit<Usuario, "idUsuario"> }>,
     reply: FastifyReply,
   ) {
-    const usuario = request.body;
+    const usuario = {
+      ...request.body,
+      senha: await argon2.hash(request.body.senha),
+    };
     const json = await this.usuarioRepository.create(usuario);
     reply.status(201).send(json);
   }
@@ -57,7 +61,13 @@ export class UsuarioController {
       return reply.status(404).send({ message: "Usuario nao encontrado" });
     }
 
-    const json = await this.usuarioRepository.update(id, request.body);
+    const data = { ...request.body };
+
+    if (request.body.senha) {
+      data.senha = await argon2.hash(request.body.senha);
+    }
+
+    const json = await this.usuarioRepository.update(id, data);
     reply.status(200).send(json);
   }
 
@@ -77,8 +87,8 @@ export class UsuarioController {
       return reply.status(404).send({ message: "Usuario nao encontrado" });
     }
 
-    const json = await this.usuarioRepository.delete(id);
-    reply.status(200).send(json);
+    await this.usuarioRepository.delete(id);
+    reply.status(200).send(true);
   }
 }
 
