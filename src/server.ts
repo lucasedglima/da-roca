@@ -4,8 +4,13 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
 import authRoutes from "./routes/auth.route.js";
+import carrinhoRoutes from "./routes/carrinho.route.js";
 import clienteRoutes from "./routes/cliente.route.js";
+import entregaRoutes from "./routes/entrega.route.js";
+import itemCarrinhoRoutes from "./routes/itemCarrinho.route.js";
+import itemPedidoRoutes from "./routes/itemPedido.route.js";
 import pagamentoRoutes from "./routes/pagamento.route.js";
+import pedidoRoutes from "./routes/pedido.route.js";
 import produtorRoutes from "./routes/produtor.route.js";
 import produtoRoutes from "./routes/produto.route.js";
 import usuarioRoutes from "./routes/usuario.route.js";
@@ -54,6 +59,10 @@ app.addHook("onRequest", async (request, reply) => {
     return;
   }
 
+  if (request.method === "POST" && url === "/usuarios") {
+    return;
+  }
+
   await authMiddleware(request, reply);
 });
 
@@ -61,7 +70,12 @@ app.register(usuarioRoutes, { prefix: "/usuarios" });
 app.register(clienteRoutes, { prefix: "/clientes" });
 app.register(produtorRoutes, { prefix: "/produtores" });
 app.register(produtoRoutes, { prefix: "/produtos" });
+app.register(carrinhoRoutes, { prefix: "/carrinhos" });
+app.register(itemCarrinhoRoutes, { prefix: "/itens-carrinho" });
 app.register(pagamentoRoutes, { prefix: "/pagamentos" });
+app.register(entregaRoutes, { prefix: "/entregas" });
+app.register(pedidoRoutes, { prefix: "/pedidos" });
+app.register(itemPedidoRoutes, { prefix: "/itens-pedido" });
 app.register(authRoutes, { prefix: "/auth" });
 
 const start = async () => {
