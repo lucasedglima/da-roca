@@ -209,5 +209,3 @@ Its main purpose was to apply software development concepts in a complete applic
 ## Author
 
 **Lucas Eduardo Gomes de Lima**
-
-Computer Engineering student at UNIFEI interested in Data, Artificial Intelligence and Software Development.
